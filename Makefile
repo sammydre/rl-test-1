@@ -1,4 +1,13 @@
-.PHONY: all
+.PHONY: all clean run
+
+PYTHON="/c/Coding/Python27/python.exe"
+SCONS="/c/Coding/Python27/Scripts/scons.py"
 
 all:
-	@/c/Coding/Python27/python.exe /c/Coding/Python27/Scripts/scons.py -q
+	@$(PYTHON) $(SCONS)
+
+clean:
+	@$(PYTHON) $(SCONS) -q -c
+
+run: all
+	cd build; ./rl.exe
