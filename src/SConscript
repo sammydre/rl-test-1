@@ -1,4 +1,10 @@
 Import('env')
-
 env = env.Clone()
+
+libtcod = '/c/Coding/libtcod-1.5.1/'
+
+env.Append(CPPPATH=[libtcod + 'include'],
+           LIBPATH=[libtcod + 'lib'],
+           LIBS=['libtcod-mingw'])
+
 env.Program('rl', ['main.cpp'])
