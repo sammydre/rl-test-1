@@ -1,0 +1,4 @@
+Import('env')
+
+env = env.Clone()
+env.Program('rl', ['main.cpp'])
