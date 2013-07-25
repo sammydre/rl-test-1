@@ -3,98 +3,11 @@
 #include <memory>
 #include <queue>
 
-#include "libtcod.hpp"
+#include <libtcod.hpp>
 
-struct Tile
-{
-  Tile()
-    : ascii_('#'),
-      bg_colour_(0xaa, 0xaa, 0xaa),
-      fg_colour_(0xff, 0xff, 0xff)
-  {
-  }
-
-  int ascii_;
-  TCODColor bg_colour_;
-  TCODColor fg_colour_;
-};
-
-struct Map
-{
-  Map()
-    : width_(80),
-      height_(50)
-  {
-    tiles_.reset(new Tile[width_ * height_]);
-    setup();
-  }
-
-  void setup()
-  {
-    for (int y = 1; y < height_ - 1; y++) {
-      for (int x = 1; x < width_ - 1; x++) {
-        tile_at(x, y).ascii_ = '.';
-        tile_at(x, y).bg_colour_ = TCODColor(0, 0, 0);
-        tile_at(x, y).fg_colour_ = TCODColor(0x99, 0x99, 0x99);
-      }
-    }
-  }
-
-  void render(TCODConsole *con)
-  {
-    for (int y = 0; y < height_; y++) {
-      for (int x = 0; x < width_; x++) {
-        const Tile &t = tile_at(x, y);
-        con->putChar(x, y, t.ascii_);
-        con->setCharBackground(x, y, t.bg_colour_);
-        con->setCharForeground(x, y, t.fg_colour_);
-      }
-    }
-  }
-
-  Tile &tile_at(int x, int y)
-  {
-    return tiles_[y * width_ + x];
-  }
-
-  int width_;
-  int height_;
-  std::unique_ptr<Tile[]> tiles_;
-};
-
-struct Entity
-{
-  Entity(int x, int y, int ascii)
-    : x_(x),
-      y_(y),
-      ascii_(ascii)
-  {
-  }
-
-  virtual void render(TCODConsole *con)
-  {
-    con->putChar(x_, y_, ascii_);
-    con->setCharBackground(x_, y_, TCODColor(0, 0, 0));
-    con->setCharForeground(x_, y_, TCODColor(0xff, 0xff, 0xff));
-  }
-
-  void move(int dx, int dy)
-  {
-    if (x_ + dx < 1 ||
-        x_ + dx >= 79)
-      return;
-    if (y_ + dy < 1 ||
-        y_ + dy >= 49)
-      return;
-
-    x_ += dx;
-    y_ += dy;
-  }
-
-  int x_;
-  int y_;
-  int ascii_;
-};
+#include "entity.hpp"
+#include "event.hpp"
+#include "map.hpp"
 
 struct Player : public Entity
 {
@@ -103,87 +16,6 @@ struct Player : public Entity
   {
   }
 };
-
-struct Event
-{
-  Event(int64_t time)
-    : time_(time),
-      cancelled_(false),
-      reschedule_(false)
-  {
-  }
-  
-  virtual ~Event()
-  {
-  }
-
-  bool operator<(const Event &rhs) const
-  {
-    // We reverse the comparison here to make the priority queue have
-    // the lowest element at the top, not the greatest.
-    return time_ > rhs.time_;
-  }
-
-  void cancel()
-  {
-    cancelled_ = true;
-  }
-
-  virtual void run() = 0;
-
-  int64_t time_;
-  bool cancelled_;
-  bool reschedule_;
-
-  typedef std::shared_ptr<Event> Ptr;
-};
-
-struct Simulator
-{
-  Simulator()
-    : time_(0)
-  {
-  }
-
-  void step()
-  {
-    if (queue_.empty())
-      return;
-
-    std::shared_ptr<Event> ev = queue_.top();
-    queue_.pop();
-
-    if (!ev->cancelled_) {
-      fprintf(stderr, "Sim: run event at %ld\n", ev->time_);
-      time_ = ev->time_;
-      ev->run();
-    }
-
-    if (ev->reschedule_) {
-      ev->cancelled_ = false;
-      ev->reschedule_ = false;
-      add(ev);
-    }
-  }
-
-  void add(const std::shared_ptr<Event>& ev)
-  {
-    queue_.push(ev);
-  }
-
-  int64_t time_;
-  std::priority_queue<std::shared_ptr<Event>> queue_;
-};
-
-void sim_add_event(const std::shared_ptr<Event>& ev)
-{
-  // TODO
-}
-
-int64_t sim_cur_time(void)
-{
-  return 0;
-}
 
 struct ExplosionJunk : public Entity
 {
@@ -235,11 +67,10 @@ int main()
 {
   Map map;
   Player player;
-  Simulator simulator;
   
   ExplosionJunk::Ptr ej(new ExplosionJunk(10, 10, 1, 1, 5000));
 
-  simulator.add(Event::Ptr(new ExplosionJunkUpdateEvent(ej)));
+  sim_add_event(Event::Ptr(new ExplosionJunkUpdateEvent(ej)));
 
   TCODConsole::initRoot(80, 50, "libtcod test", false);
 
@@ -269,7 +100,7 @@ int main()
       }
     }
 
-    simulator.step();
+    sim_step();
   }
   return 0;
 }

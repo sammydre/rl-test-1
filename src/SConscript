@@ -8,7 +8,14 @@ env.Append(CPPPATH=[libtcod + 'include'],
            LIBS=['libtcod-mingw'],
            CXXFLAGS=['-std=c++0x', '-Wall'])
 
-prog = env.Program('rl', ['main.cpp'])
+sources = [
+  'main.cpp',
+  'map.cpp',
+  'entity.cpp',
+  'event.cpp',
+  ]
+
+prog = env.Program('rl', sources) 
 
 for dll in ['SDL.dll', 'libtcod-mingw.dll', 'terminal.png']:
   act = env.Command(dll, libtcod + dll, Copy("$TARGET", "$SOURCE"))
