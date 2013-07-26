@@ -1,6 +1,7 @@
 #include <queue>
 #include <stdio.h>
 #include "event.hpp"
+#include "gui.hpp"
 
 Event::Event(int64_t time)
   : time_(time),
@@ -27,7 +28,7 @@ struct Simulator
     queue_.pop();
 
     if (!ev->cancelled_) {
-      fprintf(stderr, "Sim: run event at %ld\n", ev->time_);
+      gui_msg("Sim: run event at %ld", (long)ev->time_);
       time_ = ev->time_;
       ev->run();
     }

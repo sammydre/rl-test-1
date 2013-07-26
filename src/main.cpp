@@ -8,6 +8,7 @@
 #include "entity.hpp"
 #include "event.hpp"
 #include "map.hpp"
+#include "gui.hpp"
 
 struct Player : public Entity
 {
@@ -48,7 +49,8 @@ struct ExplosionJunkUpdateEvent : public Event
 
   virtual void run()
   {
-    fprintf(stderr, "move by %d,%d\n", exp_junk_->vel_x_, exp_junk_->vel_y_);
+    gui_msg("expjunk %p move by %d,%d", this, 
+        exp_junk_->vel_x_, exp_junk_->vel_y_);
     exp_junk_->move(exp_junk_->vel_x_, exp_junk_->vel_y_);
     exp_junk_->lifetime_ -= TIME_DELTA;
 
@@ -67,18 +69,20 @@ int main()
 {
   Map map;
   Player player;
+  Gui gui;
   
   ExplosionJunk::Ptr ej(new ExplosionJunk(10, 10, 1, 1, 5000));
 
   sim_add_event(Event::Ptr(new ExplosionJunkUpdateEvent(ej)));
 
-  TCODConsole::initRoot(80, 50, "libtcod test", false);
+  TCODConsole::initRoot(80, 70, "libtcod test", false);
 
   while (!TCODConsole::isWindowClosed()) {
     TCODConsole *console = TCODConsole::root;
 
     console->clear();
     map.render(console);
+    gui.render(console);
     player.render(console);
     ej->render(console);
 

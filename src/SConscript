@@ -13,12 +13,13 @@ sources = [
   'map.cpp',
   'entity.cpp',
   'event.cpp',
+  'gui.cpp',
   ]
 
 prog = env.Program('rl', sources) 
 
 for dll in ['SDL.dll', 'libtcod-mingw.dll', 'terminal.png']:
   act = env.Command(dll, libtcod + dll, Copy("$TARGET", "$SOURCE"))
-  env.Depends(act, prog)
+  env.Depends(prog, act)
 
 
