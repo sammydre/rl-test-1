@@ -1,5 +1,6 @@
 #include <queue>
-#include <stdio.h>
+#include <cstdio>
+#include <inttypes.h>
 #include "event.hpp"
 #include "gui.hpp"
 
@@ -24,11 +25,11 @@ struct Simulator
     if (queue_.empty())
       return;
 
-    std::shared_ptr<Event> ev = queue_.top();
+    auto ev = queue_.top();
     queue_.pop();
 
     if (!ev->cancelled_) {
-      gui_msg("Sim: run event at %ld", (long)ev->time_);
+      gui_msg("Sim: run event at %"PRIi64"\n", ev->time_);
       time_ = ev->time_;
       ev->run();
     }

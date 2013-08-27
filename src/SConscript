@@ -6,7 +6,8 @@ libtcod = '/Coding/libtcod-1.5.1/'
 env.Append(CPPPATH=[libtcod + 'include'],
            LIBPATH=[libtcod + 'lib'],
            LIBS=['libtcod-mingw'],
-           CXXFLAGS=['-std=c++0x', '-Wall'])
+           CXXFLAGS=['-std=c++0x', '-Wall'],
+           CPPDEFINES=['__STDC_FORMAT_MACROS'])
 
 sources = [
   'main.cpp',

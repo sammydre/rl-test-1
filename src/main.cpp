@@ -71,7 +71,7 @@ int main()
   Player player;
   Gui gui;
   
-  ExplosionJunk::Ptr ej(new ExplosionJunk(10, 10, 1, 1, 5000));
+  auto ej = std::make_shared<ExplosionJunk>(10, 10, 1, 1, 5000);
 
   sim_add_event(Event::Ptr(new ExplosionJunkUpdateEvent(ej)));
 
