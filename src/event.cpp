@@ -46,8 +46,20 @@ struct Simulator
     queue_.push(ev);
   }
 
+  struct EventComparitor
+  {
+    bool operator()(const Event::Ptr &lhs, const Event::Ptr &rhs) const
+    {
+      // We reverse the comparison here to make the priority queue have
+      // the lowest element at the top, not the greatest.
+      return lhs->time_ > rhs->time_;
+    }
+  };
+
   int64_t time_;
-  std::priority_queue<std::shared_ptr<Event>> queue_;
+  std::priority_queue<Event::Ptr,
+                      std::vector<Event::Ptr>,
+                      EventComparitor> queue_;
 };
 
 Simulator sim;

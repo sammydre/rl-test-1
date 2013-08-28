@@ -18,6 +18,63 @@ struct Player : public Entity
   }
 };
 
+struct EntityAction : public Event
+{
+  EntityAction(Entity *entity, int warmup_time, int cooldown_time)
+    : Event(sim_cur_time()),
+      entity_(entity),
+      warmup_time_(warmup_time),
+      cooldown_time_(cooldown_time),
+      state_(STATE_INITIAL)
+  {
+  }
+
+  virtual void run()
+  {
+    switch (state_) {
+      case STATE_INITIAL:
+        state_ = STATE_WARMING_UP;
+        entity_->set_busy(true);
+        reschedule(sim_cur_time() + warmup_time_);
+        break;
+      case STATE_WARMING_UP:
+        action();
+        state_ = STATE_COOLING_DOWN;
+        reschedule(sim_cur_time() + cooldown_time_);
+        break;
+      case STATE_COOLING_DOWN:
+        entity_->set_busy(false);
+        break;
+    }
+  }
+
+  virtual void action() = 0;
+
+  Entity *entity_;
+  int warmup_time_;
+  int cooldown_time_;
+  enum { STATE_INITIAL, STATE_WARMING_UP, STATE_COOLING_DOWN }
+      state_;
+};
+
+struct EntityMoveAction : public EntityAction
+{
+  EntityMoveAction(Entity *entity, int dx, int dy, int move_time)
+    : EntityAction(entity, 0, move_time),
+      dx_(dx),
+      dy_(dy)
+  {
+  }
+
+  virtual void action()
+  {
+    entity_->move(dx_, dy_);
+  }
+
+  int dx_;
+  int dy_;
+};
+
 struct ExplosionJunk : public Entity
 {
   ExplosionJunk(int x, int y, int vel_x, int vel_y, int lifetime)
@@ -88,19 +145,29 @@ int main()
 
     TCODConsole::flush();
 
-    TCOD_key_t key;
-    TCOD_event_t event;
+    if (!player.is_busy()) {
+      TCOD_key_t key;
+      TCOD_event_t event;
 
-    event = TCODSystem::waitForEvent(TCOD_EVENT_KEY_PRESS, &key, NULL, false);
+      event = TCODSystem::waitForEvent(TCOD_EVENT_KEY_PRESS, &key, NULL, false);
 
-    if (event == TCOD_EVENT_KEY_PRESS) {
-      switch (key.vk) {
-        case TCODK_UP:    player.move( 0, -1); break;
-        case TCODK_DOWN:  player.move( 0,  1); break;
-        case TCODK_LEFT:  player.move(-1,  0); break;
-        case TCODK_RIGHT: player.move( 1,  0); break;
-        default:
-          break;
+      if (event == TCOD_EVENT_KEY_PRESS) {
+        switch (key.vk) {
+          case TCODK_UP:
+            sim_add_event(Event::Ptr(new EntityMoveAction(&player, 0, -1, 100)));
+            break;
+          case TCODK_DOWN:
+            sim_add_event(Event::Ptr(new EntityMoveAction(&player, 0, 1, 100)));
+            break;
+          case TCODK_LEFT:
+            sim_add_event(Event::Ptr(new EntityMoveAction(&player, -1, 0, 100)));
+            break;
+          case TCODK_RIGHT:
+            sim_add_event(Event::Ptr(new EntityMoveAction(&player, 1, 0, 100)));
+            break;
+          default:
+            break;
+        }
       }
     }
 

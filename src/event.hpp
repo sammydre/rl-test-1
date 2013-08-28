@@ -12,20 +12,20 @@ struct Event
   {
   }
 
-  bool operator<(const Event &rhs) const
-  {
-    // We reverse the comparison here to make the priority queue have
-    // the lowest element at the top, not the greatest.
-    return time_ > rhs.time_;
-  }
-
   void cancel()
   {
     cancelled_ = true;
   }
 
+  void reschedule(int64_t abs_time)
+  {
+    reschedule_ = true;
+    time_ = abs_time;
+  }
+
   virtual void run() = 0;
 
+  // TODO: make some of these private?
   int64_t time_;
   bool cancelled_;
   bool reschedule_;
