@@ -27,6 +27,7 @@ struct EntityAction : public Event
       cooldown_time_(cooldown_time),
       state_(STATE_INITIAL)
   {
+    entity_->set_busy(true);
   }
 
   virtual void run()
@@ -34,7 +35,6 @@ struct EntityAction : public Event
     switch (state_) {
       case STATE_INITIAL:
         state_ = STATE_WARMING_UP;
-        entity_->set_busy(true);
         reschedule(sim_cur_time() + warmup_time_);
         break;
       case STATE_WARMING_UP:
@@ -117,6 +117,8 @@ struct ExplosionJunkUpdateEvent : public Event
     } else {
       // destroy junk?
     }
+
+    gui_set_dirty();
   }
 
   ExplosionJunk::Ptr exp_junk_;
@@ -133,6 +135,7 @@ int main()
   sim_add_event(Event::Ptr(new ExplosionJunkUpdateEvent(ej)));
 
   TCODConsole::initRoot(80, 70, "libtcod test", false);
+  TCODSystem::setFps(25);
 
   while (!TCODConsole::isWindowClosed()) {
     TCODConsole *console = TCODConsole::root;
@@ -144,6 +147,11 @@ int main()
     ej->render(console);
 
     TCODConsole::flush();
+    gui_set_clean();
+
+    while (player.is_busy() && !gui.is_dirty()) {
+      sim_step();
+    }
 
     if (!player.is_busy()) {
       TCOD_key_t key;
@@ -169,9 +177,9 @@ int main()
             break;
         }
       }
+    } else {
     }
 
-    sim_step();
   }
   return 0;
 }

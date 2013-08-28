@@ -12,7 +12,8 @@ Gui::Gui()
   : messages_y_(51),
     messages_x_(0),
     messages_width_(78),
-    messages_height_(18)
+    messages_height_(18),
+    dirty_(true)
 {
   Gui::instance_ = this;
 }
@@ -43,6 +44,17 @@ void Gui::add_msg(const char *msg)
     messages_.pop_front();
 }
 
+bool Gui::is_dirty() const
+{
+  return dirty_;
+}
+
+void Gui::set_dirty(bool is_dirty)
+{
+  dirty_ = is_dirty;
+}
+
+
 void gui_msg(const char *fmt, ...)
 {
   char buffer[256];
@@ -53,3 +65,14 @@ void gui_msg(const char *fmt, ...)
 
   Gui::instance_->add_msg(buffer);
 }
+
+void gui_set_dirty(void)
+{
+  Gui::instance_->set_dirty(true);
+}
+
+void gui_set_clean(void)
+{
+  Gui::instance_->set_dirty(false);
+}
+
