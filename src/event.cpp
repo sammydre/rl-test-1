@@ -29,7 +29,7 @@ struct Simulator
     queue_.pop();
 
     if (!ev->cancelled_) {
-      gui_msg("Sim: run event at %"PRIi64"\n", ev->time_);
+      gui_msg("Sim: run event at %" PRIi64 "\n", ev->time_);
       time_ = ev->time_;
       ev->run();
     }

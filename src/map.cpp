@@ -1,7 +1,7 @@
 #include "map.hpp"
 
 Tile::Tile()
-  : ascii_('#'),
+  : char_('#'),
     bg_colour_(0xaa, 0xaa, 0xaa),
     fg_colour_(0xff, 0xff, 0xff)
 {
@@ -21,14 +21,14 @@ void Map::setup()
 {
   for (int y = 1; y < height_ - 1; y++) {
     for (int x = 1; x < width_ - 1; x++) {
-      tile_at(x, y).ascii_ = '.';
-      tile_at(x, y).bg_colour_ = TCODColor(0, 0, 0);
-      tile_at(x, y).fg_colour_ = TCODColor(0x99, 0x99, 0x99);
+      tile_at(x, y).char_ = '.';
+      tile_at(x, y).bg_colour_ = Colour(0, 0, 0);
+      tile_at(x, y).fg_colour_ = Colour(0x99, 0x99, 0x99);
     }
   }
 }
 
-void Map::render(TCODConsole *con)
+/*void Map::render(TCODConsole *con)
 {
   for (int y = 0; y < height_; y++) {
     for (int x = 0; x < width_; x++) {
@@ -38,5 +38,5 @@ void Map::render(TCODConsole *con)
       con->setCharForeground(x, y, t.fg_colour_);
     }
   }
-}
+}*/
 

@@ -3,8 +3,6 @@
 #include <memory>
 #include <queue>
 
-#include <libtcod.hpp>
-
 #include "entity.hpp"
 #include "event.hpp"
 #include "map.hpp"
@@ -134,6 +132,7 @@ int main()
 
   sim_add_event(Event::Ptr(new ExplosionJunkUpdateEvent(ej)));
 
+  /*
   TCODConsole::initRoot(80, 70, "libtcod test", false);
   TCODSystem::setFps(25);
 
@@ -181,6 +180,8 @@ int main()
     }
 
   }
+  */
+
   return 0;
 }
 

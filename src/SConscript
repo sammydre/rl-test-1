@@ -1,14 +1,6 @@
 Import('env')
 env = env.Clone()
 
-libtcod = '/Coding/libtcod-1.5.1/'
-
-env.Append(CPPPATH=[libtcod + 'include'],
-           LIBPATH=[libtcod + 'lib'],
-           LIBS=['libtcod-mingw'],
-           CXXFLAGS=['-std=c++0x', '-Wall'],
-           CPPDEFINES=['__STDC_FORMAT_MACROS'])
-
 sources = [
   'main.cpp',
   'map.cpp',
@@ -19,8 +11,15 @@ sources = [
 
 prog = env.Program('rl', sources) 
 
-for dll in ['SDL.dll', 'libtcod-mingw.dll', 'terminal.png']:
-  act = env.Command(dll, libtcod + dll, Copy("$TARGET", "$SOURCE"))
-  env.Depends(prog, act)
+if False:
+    for dll in ['SDL.dll', 'libtcod-mingw.dll', 'terminal.png']:
+      act = env.Command(dll, libtcod + dll, Copy("$TARGET", "$SOURCE"))
+      env.Depends(prog, act)
 
+    libtcod = '/Coding/libtcod-1.5.1/'
+    env.Append(CPPPATH=[libtcod + 'include'],
+               LIBPATH=[libtcod + 'lib'],
+               LIBS=['libtcod-mingw'],
+               CXXFLAGS=['-std=c++0x', '-Wall'],
+               CPPDEFINES=['__STDC_FORMAT_MACROS'])
 

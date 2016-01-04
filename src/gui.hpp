@@ -10,7 +10,7 @@ struct Gui
 {
   Gui();
 
-  void render(TCODConsole *);
+  // void render(TCODConsole *);
   void add_msg(const char *msg);
   bool is_dirty() const;
   void set_dirty(bool is_dirty);

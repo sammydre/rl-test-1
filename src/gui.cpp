@@ -4,7 +4,7 @@
 
 #include "gui.hpp"
 
-#include <libtcod.hpp>
+// #include <libtcod.hpp>
 
 Gui *Gui::instance_ = NULL;
 
@@ -18,7 +18,7 @@ Gui::Gui()
   Gui::instance_ = this;
 }
 
-void Gui::render(TCODConsole *con)
+/*void Gui::render(TCODConsole *con)
 {
   int messages_to_draw = std::min(
       (size_t)messages_height_,
@@ -35,7 +35,7 @@ void Gui::render(TCODConsole *con)
   for (; i != std::end(messages_); ++i, ++y) {
     con->print(x, y, "%s", (*i).c_str());
   }
-}
+}*/
 
 void Gui::add_msg(const char *msg)
 {
