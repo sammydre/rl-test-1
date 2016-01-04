@@ -1,9 +1,9 @@
 #include "entity.hpp"
 
-Entity::Entity(int x, int y, int ascii)
+Entity::Entity(int x, int y, int char32)
   : x_(x),
     y_(y),
-    ascii_(ascii)
+    char_(char32)
 {
 }
 

@@ -3,7 +3,7 @@
 
 struct Entity
 {
-  Entity(int x, int y, int ascii);
+  Entity(int x, int y, int char32);
 
   // virtual void render(TCODConsole *con);
 
@@ -18,7 +18,7 @@ struct Entity
 
   int x_;
   int y_;
-  int ascii_;
+  char32_t char_;
   bool busy_;
 };
 

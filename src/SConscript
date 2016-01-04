@@ -2,16 +2,24 @@ Import('env')
 env = env.Clone()
 
 sources = [
-  'main.cpp',
   'map.cpp',
   'entity.cpp',
   'event.cpp',
   'gui.cpp',
   ]
 
-prog = env.Program('rl', sources) 
+rl_lib = env.Library('rl-lib', sources) 
+
+if True:
+    # termbox "curses" terminal UI
+    env = env.Clone()
+    env.Append(CPPPATH=['../../usr/include'],
+               LIBPATH=['../../usr/lib'],
+               LIBS=[rl_lib, 'termbox'])
+    env.Program('rl-term', ['ui/term/main.cpp'])
 
 if False:
+    # 'main.cpp',
     for dll in ['SDL.dll', 'libtcod-mingw.dll', 'terminal.png']:
       act = env.Command(dll, libtcod + dll, Copy("$TARGET", "$SOURCE"))
       env.Depends(prog, act)
