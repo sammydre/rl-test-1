@@ -10,6 +10,7 @@ sources = [
   ]
 
 # apt-get install yaml-cpp-dev
+# https://github.com/jbeder/yaml-cpp/wiki/Tutorial
 
 env.Append(CFLAGS=' -Wall', CXXFLAGS=' -Wall')
 rl_lib = env.Library('rl-lib', sources) 
