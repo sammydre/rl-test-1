@@ -28,15 +28,3 @@ void Map::setup()
   }
 }
 
-/*void Map::render(TCODConsole *con)
-{
-  for (int y = 0; y < height_; y++) {
-    for (int x = 0; x < width_; x++) {
-      const Tile &t = tile_at(x, y);
-      con->putChar(x, y, t.ascii_);
-      con->setCharBackground(x, y, t.bg_colour_);
-      con->setCharForeground(x, y, t.fg_colour_);
-    }
-  }
-}*/
-

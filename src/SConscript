@@ -5,15 +5,19 @@ sources = [
   'map.cpp',
   'entity.cpp',
   'event.cpp',
+  'game.cpp',
   'gui.cpp',
   ]
 
+# apt-get install yaml-cpp-dev
+
+env.Append(CFLAGS=' -Wall', CXXFLAGS=' -Wall')
 rl_lib = env.Library('rl-lib', sources) 
 
 if True:
     # termbox "curses" terminal UI
     env = env.Clone()
-    env.Append(CPPPATH=['../../usr/include'],
+    env.Append(CPPPATH=['.', '../../usr/include'],
                LIBPATH=['../../usr/lib'],
                LIBS=[rl_lib, 'termbox'])
     env.Program('rl-term', ['ui/term/main.cpp'])

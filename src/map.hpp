@@ -6,7 +6,7 @@
 
 struct Colour
 {
-  uint8_t r_, g_, b_;
+  int r_, g_, b_;
   Colour(int r, int g, int b) : r_(r), g_(g), b_(b) {}
 };
 

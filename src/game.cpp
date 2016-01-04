@@ -5,6 +5,7 @@
 
 #include "entity.hpp"
 #include "event.hpp"
+#include "game.hpp"
 #include "map.hpp"
 
 
@@ -104,8 +105,7 @@ struct ExplosionJunkUpdateEvent : public Event
 
   virtual void run()
   {
-    gui_msg("expjunk %p move by %d,%d", this, 
-        exp_junk_->vel_x_, exp_junk_->vel_y_);
+    // gui_msg("expjunk %p move by %d,%d", this, exp_junk_->vel_x_, exp_junk_->vel_y_);
     exp_junk_->move(exp_junk_->vel_x_, exp_junk_->vel_y_);
     exp_junk_->lifetime_ -= TIME_DELTA;
 
@@ -116,9 +116,14 @@ struct ExplosionJunkUpdateEvent : public Event
       // destroy junk?
     }
 
-    gui_set_dirty();
+    // gui_set_dirty();
   }
 
   ExplosionJunk::Ptr exp_junk_;
 };
 
+namespace {
+  Map g_map;
+}
+
+Map *get_map() { return &g_map; }
