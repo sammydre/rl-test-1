@@ -39,4 +39,6 @@ int64_t sim_cur_time(void);
 
 void sim_step(void);
 
+int sim_num_events(void);
+
 #endif // RL_EVENT_HPP_

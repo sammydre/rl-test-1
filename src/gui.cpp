@@ -76,3 +76,6 @@ void gui_set_clean(void)
   Gui::instance_->set_dirty(false);
 }
 
+namespace {
+  Gui g_gui;
+}

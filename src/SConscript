@@ -13,7 +13,7 @@ sources = [
 # apt-get install yaml-cpp-dev
 # https://github.com/jbeder/yaml-cpp/wiki/Tutorial
 
-env.Append(CFLAGS=' -Wall', CXXFLAGS=' -Wall')
+env.Append(CFLAGS=' -Wall -g', CXXFLAGS=' -Wall -g')
 rl_lib = env.Library('rl-lib', sources) 
 
 if True:

@@ -80,3 +80,8 @@ void sim_step(void)
   sim.step();
 }
 
+int sim_num_events(void)
+{
+  return sim.queue_.size();
+}
+

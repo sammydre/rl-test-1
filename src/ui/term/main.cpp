@@ -171,6 +171,23 @@ void handle_key(struct tb_event *ev)
 {
   if (ev->key == TB_KEY_CTRL_C)
     exit(0);
+
+  switch (ev->key) {
+  case TB_KEY_CTRL_C:
+    break;
+  case TB_KEY_ARROW_LEFT:
+    perform_action(ActionMoveLeft);
+    break;
+  case TB_KEY_ARROW_RIGHT:
+    perform_action(ActionMoveRight);
+    break;
+  case TB_KEY_ARROW_UP:
+    perform_action(ActionMoveUp);
+    break;
+  case TB_KEY_ARROW_DOWN:
+    perform_action(ActionMoveDown);
+    break;
+  }
 }
 
 int main()
@@ -206,6 +223,9 @@ int main()
       continue;
     else if (event.type == TB_EVENT_MOUSE)
       ;
+
+    run_events();
+
     // break;
   }
 

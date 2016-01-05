@@ -14,6 +14,11 @@ struct Tile
 {
   Tile();
 
+  bool passable() const
+  {
+    return char_ == '.';
+  };
+
   char32_t char_;
   Colour bg_colour_;
   Colour fg_colour_;

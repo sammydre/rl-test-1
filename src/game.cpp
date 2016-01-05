@@ -67,53 +67,6 @@ struct EntityMoveAction : public EntityAction
   int dy_;
 };
 
-struct ExplosionJunk : public Entity
-{
-  ExplosionJunk(int x, int y, int vel_x, int vel_y, int lifetime)
-    : Entity(x, y, '~'),
-      vel_x_(vel_x),
-      vel_y_(vel_y),
-      lifetime_(lifetime)
-  {
-  }
-
-  int vel_x_;
-  int vel_y_;
-  int lifetime_;
-
-  typedef std::shared_ptr<ExplosionJunk> Ptr;
-};
-
-struct ExplosionJunkUpdateEvent : public Event
-{
-  enum {
-    TIME_DELTA = 10
-  };
-
-  ExplosionJunkUpdateEvent(const ExplosionJunk::Ptr& j)
-    : Event(sim_cur_time() + TIME_DELTA),
-      exp_junk_(j)
-  {
-  }
-
-  virtual void run()
-  {
-    // gui_msg("expjunk %p move by %d,%d", this, exp_junk_->vel_x_, exp_junk_->vel_y_);
-    exp_junk_->move(exp_junk_->vel_x_, exp_junk_->vel_y_);
-    exp_junk_->lifetime_ -= TIME_DELTA;
-
-    if (exp_junk_->lifetime_ > 0) {
-      reschedule_ = true;
-      time_ += TIME_DELTA;
-    } else {
-      // destroy junk?
-    }
-
-    // gui_set_dirty();
-  }
-
-  ExplosionJunk::Ptr exp_junk_;
-};
 
 namespace {
   Map g_map;
@@ -122,3 +75,66 @@ namespace {
 
 Map *get_map() { return &g_map; }
 Player *get_player() { return &g_player; }
+
+struct PlayerAction
+{
+  virtual void perform() = 0;
+};
+
+struct PlayerMoveAction : PlayerAction
+{
+  PlayerMoveAction(int dx, int dy)
+    : dx_(dx), dy_(dy)
+  {}
+
+  virtual void perform()
+  {
+    Map *m = get_map();
+    Player *p = get_player();
+    int mx = p->x_ + dx_,
+        my = p->y_ + dy_;
+    
+    if (!m->contains(mx, my))
+      return;
+
+    Tile &t = m->tile_at(mx, my);
+
+    if (!t.passable()) {
+      // gui_message("You can't move there.");
+      return;
+    }
+    
+    p->set_busy(true);
+    sim_add_event(Event::Ptr(new EntityMoveAction(p, dx_, dy_, 100)));
+  }
+
+private:
+  int dx_, dy_;
+};
+
+void perform_action(ActionEnum e)
+{
+  std::unique_ptr<PlayerAction> act;
+
+  switch (e) {
+    case ActionMoveLeft:
+      act.reset(new PlayerMoveAction(-1, +0)); break;
+    case ActionMoveRight:
+      act.reset(new PlayerMoveAction(+1, +0)); break;
+    case ActionMoveUp:
+      act.reset(new PlayerMoveAction(+0, -1)); break;
+    case ActionMoveDown:
+      act.reset(new PlayerMoveAction(+0, +1)); break;
+  }
+
+  if (act.get())
+    act->perform();
+}
+
+void run_events()
+{
+  while (get_player()->busy_ &&
+         sim_num_events() > 0)
+    sim_step();
+}
+
