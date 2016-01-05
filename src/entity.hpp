@@ -5,8 +5,6 @@ struct Entity
 {
   Entity(int x, int y, int char32);
 
-  // virtual void render(TCODConsole *con);
-
   void move(int dx, int dy);
 
   void set_busy(bool is_busy)

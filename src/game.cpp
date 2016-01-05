@@ -7,15 +7,8 @@
 #include "event.hpp"
 #include "game.hpp"
 #include "map.hpp"
+#include "pc.hpp"
 
-
-struct Player : public Entity
-{
-  Player()
-    : Entity(40, 25, '@')
-  {
-  }
-};
 
 struct EntityAction : public Event
 {
@@ -124,6 +117,8 @@ struct ExplosionJunkUpdateEvent : public Event
 
 namespace {
   Map g_map;
+  Player g_player;
 }
 
 Map *get_map() { return &g_map; }
+Player *get_player() { return &g_player; }

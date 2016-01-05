@@ -4,6 +4,7 @@
 
 #include "game.hpp"
 #include "map.hpp"
+#include "pc.hpp"
 
 int rgb_to_tbcolor(Colour rgb)
 {
@@ -62,7 +63,84 @@ int rgb_to_tbcolor(Colour rgb)
   return best_index;
 }
 
-void render_map_to_tb(Map *m)
+struct Framebuffer
+{
+  Framebuffer(int cx, int cy)
+    : center_x_(cx), center_y_(cy),
+      tb_width_(tb_width()), tb_height_(tb_height()),
+      tb_cells_(tb_cell_buffer())
+  {}
+
+  void render_map(Map *m)
+  {
+    const int map_size_x = tb_width_;
+    const int map_size_y = tb_height_;
+
+    for (int y = 0; y < map_size_y; y++) {
+      for (int x = 0; x < map_size_x; x++) {
+        struct tb_cell *c = &tb_cells_[y * tb_width_ + x];
+
+        const int mx = tb_coord_to_map_x(x);
+        const int my = tb_coord_to_map_y(y);
+
+        if (m->contains(mx, my)) {
+          Tile &tile = m->tile_at(mx, my);
+          c->ch = tile.char_;
+          c->fg = rgb_to_tbcolor(tile.fg_colour_);
+          c->bg = rgb_to_tbcolor(tile.bg_colour_);
+        } else {
+          c->ch = ' ';
+          c->fg = 0;
+          c->bg = 0;
+        }
+      }
+    }
+  }
+
+  void render_entity(Entity *e)
+  {
+    int tx = map_coord_to_tb_x(e->x_);
+    int ty = map_coord_to_tb_y(e->y_);
+
+    if (tb_coord_valid(tx, ty)) {
+      struct tb_cell *cell = &tb_cells_[ty * tb_width_ + tx];
+      cell->ch = e->char_;
+      cell->fg = rgb_to_tbcolor(Colour(255, 0, 0));
+      cell->bg = 0;
+    }
+  }
+
+private:
+  int map_coord_to_tb_x(int x)
+  {
+    return x - center_x_ + tb_width_/2;
+  }
+  int map_coord_to_tb_y(int y)
+  {
+    return y - center_y_ + tb_height_/2;
+  }
+  int tb_coord_to_map_x(int x)
+  {
+    return x + center_x_ - tb_width_/2;
+  }
+  int tb_coord_to_map_y(int y)
+  {
+    return y + center_y_ - tb_height_/2;
+  }
+  bool tb_coord_valid(int x, int y)
+  {
+    return x >= 0 && x < tb_width_ &&
+           y >= 0 && y < tb_height_;
+  }
+
+  int center_x_;
+  int center_y_;
+  int tb_width_;
+  int tb_height_;
+  struct tb_cell *tb_cells_;
+};
+
+void render_map_to_tb(Map *m, int cx, int cy)
 {
   const int c_width = tb_width();
   const int c_height = tb_height();
@@ -71,8 +149,12 @@ void render_map_to_tb(Map *m)
   for (int y = 0; y < c_height; y++) {
     for (int x = 0; x < c_width; x++) {
       struct tb_cell *c = &cells[y * c_width + x];
-      if (x < m->width_ && y < m->height_) {
-        Tile &tile = m->tile_at(x, y);
+
+      const int mx = cx + x - c_width/2;
+      const int my = cy + y - c_height/2;
+
+      if (m->contains(mx, my)) {
+        Tile &tile = m->tile_at(mx, my);
         c->ch = tile.char_;
         c->fg = rgb_to_tbcolor(tile.fg_colour_);
         c->bg = rgb_to_tbcolor(tile.bg_colour_);
@@ -85,25 +167,47 @@ void render_map_to_tb(Map *m)
   }
 }
 
+void handle_key(struct tb_event *ev)
+{
+  if (ev->key == TB_KEY_CTRL_C)
+    exit(0);
+}
+
 int main()
 {
-  tb_init();
+  int err = tb_init();
+  if (err < 0) {
+    fprintf(stderr, "tb_init: %d\n", err);
+    return 1;
+  }
+
+  atexit(&tb_shutdown);
+
   tb_select_output_mode(TB_OUTPUT_256);
 
   tb_clear();
 
   while (1) {
     Map *m = get_map();
-    render_map_to_tb(m);
+    Player *p = get_player();
+
+    Framebuffer fb(p->x_, p->y_);
+    fb.render_map(m);
+    fb.render_entity(p);
 
     tb_present();
 
     struct tb_event event;
     tb_poll_event(&event);
 
-    break;
+    if (event.type == TB_EVENT_KEY)
+      handle_key(&event);
+    else if (event.type == TB_EVENT_RESIZE)
+      continue;
+    else if (event.type == TB_EVENT_MOUSE)
+      ;
+    // break;
   }
 
-  tb_shutdown();
   return 0;
 }

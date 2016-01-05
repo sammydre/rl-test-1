@@ -7,6 +7,7 @@ sources = [
   'event.cpp',
   'game.cpp',
   'gui.cpp',
+  'pc.cpp',
   ]
 
 # apt-get install yaml-cpp-dev

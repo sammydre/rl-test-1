@@ -23,7 +23,11 @@ struct Map
 {
   Map();
 
-  // void render(TCODConsole *con);
+  bool contains(int x, int y) const
+  {
+    return x >= 0 && x < width_ &&
+           y >= 0 && y < height_;
+  }
 
   Tile &tile_at(int x, int y)
   {
