@@ -111,7 +111,7 @@ struct Framebuffer
     }
   }
 
-  void render_msg_log(MessageList &ml)
+  void render_msg_log(const MessageList &ml)
   {
     if (ml.empty())
       return;
@@ -131,6 +131,9 @@ struct Framebuffer
       }
     }
   }
+
+  int get_height() const { return tb_height_; }
+  int get_width() const { return tb_width_; }
 
 private:
   int map_coord_to_tb_x(int x)
@@ -162,27 +165,90 @@ private:
   struct tb_cell *tb_cells_;
 };
 
-void handle_key(struct tb_event *ev)
+struct View
 {
-  if (ev->key == TB_KEY_CTRL_C)
-    exit(0);
+  virtual void render(Framebuffer *fb) = 0;
+  virtual void handle_key(struct tb_event *ev) = 0;
+};
 
+void navigate(View *);
+
+struct DebugView : public View
+{
+  void render(Framebuffer *fb) override;
+  void handle_key(struct tb_event *ev) override;
+};
+
+struct NormalView : public View
+{
+  void render(Framebuffer *fb) override;
+  void handle_key(struct tb_event *ev) override;
+};
+
+void NormalView::render(Framebuffer *fb)
+{
+  auto m = get_map();
+  auto p = get_player();
+  auto &msg_log = get_msg_log();
+
+  fb->render_map(m);
+  fb->render_entity(p);
+  fb->render_msg_log(msg_log);
+}
+
+void NormalView::handle_key(struct tb_event *ev)
+{
   switch (ev->key) {
-  case TB_KEY_CTRL_C:
-    break;
-  case TB_KEY_ARROW_LEFT:
-    perform_action(ActionMoveLeft);
-    break;
-  case TB_KEY_ARROW_RIGHT:
-    perform_action(ActionMoveRight);
-    break;
-  case TB_KEY_ARROW_UP:
-    perform_action(ActionMoveUp);
-    break;
-  case TB_KEY_ARROW_DOWN:
-    perform_action(ActionMoveDown);
-    break;
+    case TB_KEY_CTRL_C:
+      break;
+    case TB_KEY_ARROW_LEFT:
+      perform_action(ActionMoveLeft);
+      break;
+    case TB_KEY_ARROW_RIGHT:
+      perform_action(ActionMoveRight);
+      break;
+    case TB_KEY_ARROW_UP:
+      perform_action(ActionMoveUp);
+      break;
+    case TB_KEY_ARROW_DOWN:
+      perform_action(ActionMoveDown);
+      break;
   }
+  switch (ev->ch) {
+    case '`':
+      navigate(new DebugView());
+      break;
+  }
+}
+
+void DebugView::render(Framebuffer *fb)
+{
+  tb_clear();
+
+  auto &msg_log = get_dbg_log();
+  int y = fb->get_height() - 1;
+
+  for (auto i = msg_log.rbegin(); i != msg_log.rend() && y >= 0; ++i, --y) {
+    fb->render_string(i->second, 0, y);
+  }
+}
+
+void DebugView::handle_key(struct tb_event *ev)
+{
+  switch (ev->ch) {
+    case '`':
+      navigate(new NormalView());
+      break;
+  }
+}
+
+namespace {
+  std::unique_ptr<View> view(new NormalView());
+};
+
+void navigate(View *v)
+{
+  view.reset(v);
 }
 
 int main()
@@ -200,30 +266,26 @@ int main()
   tb_clear();
 
   while (1) {
-    Map *m = get_map();
-    Player *p = get_player();
-    auto msg_log = get_msg_log();
-
+    auto p = get_player();
     Framebuffer fb(p->x_, p->y_);
-    fb.render_map(m);
-    fb.render_entity(p);
-    fb.render_msg_log(msg_log);
-
+    view->render(&fb);
     tb_present();
 
     struct tb_event event;
     tb_poll_event(&event);
 
-    if (event.type == TB_EVENT_KEY)
-      handle_key(&event);
+    if (event.type == TB_EVENT_KEY) {
+      if (event.key == TB_KEY_CTRL_C)
+        exit(0);
+
+      view->handle_key(&event);
+    }
     else if (event.type == TB_EVENT_RESIZE)
       continue;
     else if (event.type == TB_EVENT_MOUSE)
       ;
 
     run_events();
-
-    // break;
   }
 
   return 0;
