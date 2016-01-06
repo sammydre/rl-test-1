@@ -1,10 +1,11 @@
 #ifndef RL_EVENT_HPP_
 #define RL_EVENT_HPP_
 
+#include <cstdint>
 #include <memory>
-#include <stdint.h>
+#include "debug.hpp"
 
-struct Event
+struct Event : public DebugDescription
 {
   Event(int64_t time);
   

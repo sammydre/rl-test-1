@@ -8,6 +8,7 @@
 #include "game.hpp"
 #include "map.hpp"
 #include "pc.hpp"
+#include "tinyformat.h"
 
 
 struct EntityAction : public Event
@@ -56,6 +57,8 @@ struct EntityMoveAction : public EntityAction
       dx_(dx),
       dy_(dy)
   {
+    set_dbg_desc(tfm::format("EntityMove{%s,dx=%d,dy=%d,mt=%d}",
+        entity->get_dbg_desc(), dx, dy, move_time));
   }
 
   virtual void action()

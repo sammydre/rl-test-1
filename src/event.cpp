@@ -1,8 +1,10 @@
 #include <queue>
 #include <cstdio>
 #include <inttypes.h>
+
 #include "event.hpp"
-#include "gui.hpp"
+#include "msg_log.hpp"
+#include "tinyformat.h"
 
 Event::Event(int64_t time)
   : time_(time),
@@ -29,7 +31,8 @@ struct Simulator
     queue_.pop();
 
     if (!ev->cancelled_) {
-      gui_msg("Sim: run event at %" PRIi64 "\n", ev->time_);
+      gmsg(tfm::format("Sim: t=%d, event=%s", ev->time_, ev->get_dbg_desc()));
+      // gui_msg("Sim: run event at %" PRIi64 "\n", ev->time_);
       time_ = ev->time_;
       ev->run();
     }

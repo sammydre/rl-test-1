@@ -1,7 +1,9 @@
 #ifndef RL_ENTITY_HPP_
 #define RL_ENTITY_HPP_
 
-struct Entity
+#include "debug.hpp"
+
+struct Entity : public DebugDescription
 {
   Entity(int x, int y, int char32);
 

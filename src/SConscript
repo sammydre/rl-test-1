@@ -6,7 +6,7 @@ sources = [
   'entity.cpp',
   'event.cpp',
   'game.cpp',
-  'gui.cpp',
+  'msg_log.cpp',
   'pc.cpp',
   ]
 
