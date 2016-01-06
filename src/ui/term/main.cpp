@@ -4,6 +4,7 @@
 
 #include "game.hpp"
 #include "map.hpp"
+#include "msg_log.hpp"
 #include "pc.hpp"
 
 int rgb_to_tbcolor(Colour rgb)
@@ -110,6 +111,27 @@ struct Framebuffer
     }
   }
 
+  void render_msg_log(MessageList &ml)
+  {
+    if (ml.empty())
+      return;
+
+    std::string s = ml.back().second;
+    render_string(s, 1, tb_height_ - 1);
+  }
+
+  void render_string(const std::string &str, int x, int y)
+  {
+    for (std::string::size_type i = 0; i < str.size(); i++) {
+      if (tb_coord_valid(x + i, y)) {
+        struct tb_cell *cell = &tb_cells_[y * tb_width_ + x + i];
+        cell->ch = str[i];
+        cell->fg = rgb_to_tbcolor(Colour(120, 120, 120));
+        cell->bg = 0;
+      }
+    }
+  }
+
 private:
   int map_coord_to_tb_x(int x)
   {
@@ -139,33 +161,6 @@ private:
   int tb_height_;
   struct tb_cell *tb_cells_;
 };
-
-void render_map_to_tb(Map *m, int cx, int cy)
-{
-  const int c_width = tb_width();
-  const int c_height = tb_height();
-  struct tb_cell *cells = tb_cell_buffer();
-
-  for (int y = 0; y < c_height; y++) {
-    for (int x = 0; x < c_width; x++) {
-      struct tb_cell *c = &cells[y * c_width + x];
-
-      const int mx = cx + x - c_width/2;
-      const int my = cy + y - c_height/2;
-
-      if (m->contains(mx, my)) {
-        Tile &tile = m->tile_at(mx, my);
-        c->ch = tile.char_;
-        c->fg = rgb_to_tbcolor(tile.fg_colour_);
-        c->bg = rgb_to_tbcolor(tile.bg_colour_);
-      } else {
-        c->ch = ' ';
-        c->fg = 0;
-        c->bg = 0;
-      }
-    }
-  }
-}
 
 void handle_key(struct tb_event *ev)
 {
@@ -207,10 +202,12 @@ int main()
   while (1) {
     Map *m = get_map();
     Player *p = get_player();
+    auto msg_log = get_msg_log();
 
     Framebuffer fb(p->x_, p->y_);
     fb.render_map(m);
     fb.render_entity(p);
+    fb.render_msg_log(msg_log);
 
     tb_present();
 

@@ -7,6 +7,7 @@
 #include "event.hpp"
 #include "game.hpp"
 #include "map.hpp"
+#include "msg_log.hpp"
 #include "pc.hpp"
 #include "tinyformat.h"
 
@@ -103,7 +104,7 @@ struct PlayerMoveAction : PlayerAction
     Tile &t = m->tile_at(mx, my);
 
     if (!t.passable()) {
-      // gui_message("You can't move there.");
+      gmsg("You can't move in that direction.");
       return;
     }
     

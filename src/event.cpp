@@ -31,8 +31,7 @@ struct Simulator
     queue_.pop();
 
     if (!ev->cancelled_) {
-      gmsg(tfm::format("Sim: t=%d, event=%s", ev->time_, ev->get_dbg_desc()));
-      // gui_msg("Sim: run event at %" PRIi64 "\n", ev->time_);
+      dmsg(tfm::format("Sim: t=%d, event=%s", ev->time_, ev->get_dbg_desc()));
       time_ = ev->time_;
       ev->run();
     }
