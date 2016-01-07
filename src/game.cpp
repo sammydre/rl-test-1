@@ -74,6 +74,7 @@ struct EntityMoveAction : public EntityAction
 
 namespace {
   Map g_map;
+  TileMap g_tile_map;
   Player g_player;
 }
 
@@ -115,6 +116,11 @@ struct PlayerMoveAction : PlayerAction
 private:
   int dx_, dy_;
 };
+
+void game_init()
+{
+  g_tile_map.load_yaml("data/tiles.yaml");
+}
 
 void perform_action(ActionEnum e)
 {

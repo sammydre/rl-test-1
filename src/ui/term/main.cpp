@@ -261,6 +261,8 @@ int main()
 
   atexit(&tb_shutdown);
 
+  game_init();
+
   tb_select_output_mode(TB_OUTPUT_256);
 
   tb_clear();

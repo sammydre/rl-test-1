@@ -21,7 +21,7 @@ if True:
     env = env.Clone()
     env.Append(CPPPATH=['.', '../../usr/include'],
                LIBPATH=['../../usr/lib'],
-               LIBS=[rl_lib, 'termbox'])
+               LIBS=[rl_lib, 'termbox', 'yaml-cpp'])
     env.Program('rl-term', ['ui/term/main.cpp'])
 
 if False:

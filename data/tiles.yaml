@@ -1,0 +1,10 @@
+- name: wall-basic
+  char: '#'
+  passable: false
+  fg_colour: 0xff0000
+  bg_colour: 0x000000
+- name: floor-basic
+  char: '.' 
+  passable: true
+  fg_colour: 0x00ff00
+  bg_colour: 0x000000

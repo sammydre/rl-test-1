@@ -3,11 +3,14 @@
 
 #include <cstdint>
 #include <memory>
+#include <unordered_map>
 
 struct Colour
 {
   int r_, g_, b_;
   Colour(int r, int g, int b) : r_(r), g_(g), b_(b) {}
+  explicit Colour(unsigned rgb)
+    : r_(rgb >> 16), g_((rgb >> 8) & 0xFF), b_(rgb & 0xFF) {}
 };
 
 struct Tile
@@ -16,12 +19,20 @@ struct Tile
 
   bool passable() const
   {
-    return char_ == '.';
+    return passable_;
   };
 
   char32_t char_;
+  bool passable_;
   Colour bg_colour_;
   Colour fg_colour_;
+};
+
+struct TileMap
+{
+  void load_yaml(const char *fname);
+
+  std::unordered_map<std::string, Tile> tiles_;
 };
 
 struct Map
@@ -38,6 +49,8 @@ struct Map
   {
     return tiles_[y * width_ + x];
   }
+
+  void load_yaml(const char *fname);
 
   int width_;
   int height_;

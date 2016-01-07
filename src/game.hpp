@@ -12,5 +12,7 @@ enum ActionEnum {
   ActionMoveUp,
   ActionMoveDown
 };
+
+void game_init();
 void perform_action(ActionEnum e);
 void run_events();
