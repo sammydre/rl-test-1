@@ -52,15 +52,18 @@ struct Map
 
   bool tile_is_transparent(int x, int y) const
   {
+    // FIXME:
     return true;
   }
 
   void set_tile_fov(int x, int y, bool fov)
   {
+    // FIXME:
   }
 
   void clear_fov()
   {
+    // FIXME:
   }
 
   int get_width() const { return width_; }
