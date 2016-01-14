@@ -1,10 +1,15 @@
 - name: wall-basic
   char: '#'
   passable: false
-  fg_colour: 0xff0000
+  fg_colour: 0x444444
   bg_colour: 0x000000
 - name: floor-basic
   char: '.' 
   passable: true
-  fg_colour: 0x00ff00
+  fg_colour: 0x1c1c1c
+  bg_colour: 0x000000
+- name: door-basic
+  char: '+'
+  passable: true
+  fg_colour: 0x777777
   bg_colour: 0x000000

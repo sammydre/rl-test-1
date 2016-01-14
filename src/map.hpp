@@ -50,6 +50,22 @@ struct Map
     return tiles_[y * width_ + x];
   }
 
+  bool tile_is_transparent(int x, int y) const
+  {
+    return true;
+  }
+
+  void set_tile_fov(int x, int y, bool fov)
+  {
+  }
+
+  void clear_fov()
+  {
+  }
+
+  int get_width() const { return width_; }
+  int get_height() const { return height_; }
+
   void load_yaml(const char *fname);
 
   int width_;

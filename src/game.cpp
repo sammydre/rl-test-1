@@ -78,6 +78,7 @@ namespace {
   Player g_player;
 }
 
+TileMap *get_tile_map() { return &g_tile_map; }
 Map *get_map() { return &g_map; }
 Player *get_player() { return &g_player; }
 
@@ -120,6 +121,7 @@ private:
 void game_init()
 {
   g_tile_map.load_yaml("data/tiles.yaml");
+  get_map()->load_yaml("data/map1.yaml");
 }
 
 void perform_action(ActionEnum e)

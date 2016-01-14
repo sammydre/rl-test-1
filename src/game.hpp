@@ -2,7 +2,9 @@
 
 struct Map;
 struct Player;
+struct TileMap;
 
+TileMap *get_tile_map(void);
 Map *get_map(void);
 Player *get_player(void);
 

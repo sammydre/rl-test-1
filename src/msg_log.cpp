@@ -1,4 +1,5 @@
 #include <cstdarg>
+#include <ctime>
 
 #include "event.hpp"
 #include "msg_log.hpp"
@@ -47,7 +48,10 @@ void gmsg(const std::string &msg)
 
 void dmsg(const std::string &msg)
 {
-  g_msg_log.add_dbg(msg);
+  char tbuf[512];
+  std::time_t t = std::time(NULL);
+  std::strftime(tbuf, sizeof(tbuf), "%T: ", std::localtime(&t));
+  g_msg_log.add_dbg(std::string(tbuf) + msg);
 }
 
 const MessageList &get_msg_log()

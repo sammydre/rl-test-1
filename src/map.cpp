@@ -1,7 +1,13 @@
 #include <yaml-cpp/yaml.h>
+#include <boost/algorithm/string.hpp>
 #include <cassert>
+#include <sstream>
 
+#include "tinyformat.h"
+#include "game.hpp"
 #include "map.hpp"
+#include "msg_log.hpp"
+#include "unicode.hpp"
 
 Tile::Tile()
   : char_('#'),
@@ -25,9 +31,8 @@ void TileMap::load_yaml(const char *fname)
 
     std::string name = tile_y["name"].as<std::string>();
     Tile tile;
-    // FIXME: utf-8
-    tile.char_ = tile_y["char"].as<std::string>()[0];
-    tile.passable_ = tile_y["passable"].as<bool>();
+    tile.char_      = utf8_to_utf32(tile_y["char"].as<std::string>())[0];
+    tile.passable_  = tile_y["passable"].as<bool>();
     tile.fg_colour_ = Colour(tile_y["fg_colour"].as<unsigned>());
     tile.bg_colour_ = Colour(tile_y["bg_colour"].as<unsigned>());
 
@@ -59,6 +64,69 @@ void Map::setup()
 
 void Map::load_yaml(const char *fname)
 {
-  YAML::Node yaml = YAML::LoadFile(fname);
+  dmsg(tfm::format("Loading map: '%s'...", fname));
+  YAML::Node node = YAML::LoadFile(fname);
 
+  assert(node.IsMap());
+
+  const std::string &name = node["name"].as<std::string>();
+  const int width = node["width"].as<int>();
+  const int height = node["height"].as<int>();
+
+  dmsg(tfm::format(" - map info: '%s' %dx%d", name, width, height));
+
+  assert(width < 1000 && height < 1000);
+  tiles_.reset(new Tile[width * height]);
+  width_ = width;
+  height_ = height;
+
+  std::unordered_map<char32_t, Tile *> tile_lookup;
+  TileMap *tl = get_tile_map();
+
+  YAML::Node tile_map = node["tiles"];
+  for (auto i = tile_map.begin(); i != tile_map.end(); ++i) {
+    const std::string &key = i->first.as<std::string>();
+    const std::string &val = i->second.as<std::string>();
+    Tile *tile = NULL;
+
+    auto ti = tl->tiles_.find(val);
+    if (ti != tl->tiles_.end()) {
+      tile = &ti->second;
+    }
+
+    std::u32string utf32 = utf8_to_utf32(key);
+    tile_lookup[utf32[0]] = tile;
+  }
+
+  dmsg(" - tiles loaded");
+
+  const std::string &map = node["map"].as<std::string>();
+  std::istringstream iss(map);
+  std::string line;
+  int y = 0;
+
+  while (iss >> line) {
+    int x = -1;
+    boost::algorithm::trim(line);
+    std::u32string utf32 = utf8_to_utf32(line);
+    for (char32_t c : utf32) {
+      Tile *tile = NULL;
+      auto ti = tile_lookup.find(c);
+      if (ti != tile_lookup.end()) {
+        tile = ti->second;
+      } else {
+      }
+
+      x++;
+
+      if (contains(x, y) && tile) {
+        tile_at(x, y) = *tile;
+      }
+    }
+
+    if (x >= 0)
+      y++;
+  }
+
+  dmsg(" - map loaded");
 }

@@ -72,6 +72,21 @@ struct Framebuffer
       tb_cells_(tb_cell_buffer())
   {}
 
+  void test()
+  {
+    int count = 255, y = 0;
+    for (int x = 0; count > 0; x++) {
+      tb_cells_[x+y*tb_width_].fg = count--;
+      tb_cells_[x+y*tb_width_].bg = 0;
+      tb_cells_[x+y*tb_width_].ch = '=';
+
+      if (x >= tb_width_)
+      { y++; x = 0; }
+      if (y >= tb_height_)
+        break;
+    }
+  }
+
   void render_map(Map *m)
   {
     const int map_size_x = tb_width_;
@@ -271,6 +286,7 @@ int main()
     auto p = get_player();
     Framebuffer fb(p->x_, p->y_);
     view->render(&fb);
+    fb.test();
     tb_present();
 
     struct tb_event event;

@@ -5,6 +5,7 @@ sources = [
   'map.cpp',
   'entity.cpp',
   'event.cpp',
+  'fov.cpp',
   'game.cpp',
   'msg_log.cpp',
   'pc.cpp',
